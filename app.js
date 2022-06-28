@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 const Categories = require('./models/Categories');
+const Products = require('./models/Products');
 require('dotenv').config();
 
 app.use(express.json());
@@ -79,6 +80,7 @@ app.post("/categories", async (req, res) => {
     })
 });
 
+
 app.put("/categories",async (req, res) => {
     const{ id} = req.body;
 
@@ -112,8 +114,29 @@ app.delete("/categories/:id",async (req, res)=>{
     });
 });
 
+
+// app.listen(6333);
+app.post("/products", async (req, res) => {
+    // const{ name, email, gender, password } = req.body;
+    var dados = req.body;
+    console.log(dados);
+    // dados.password = await bcrypt.hash(dados.password,8);
+    // console.log(dados.password);
+    
+    await Products.create(dados)
+    .then(()=>{
+        return res.json({
+            erro: false,
+            mensagem:'Produto cadastrado com sucesso!'
+        });
+    }).catch((err) => {
+        return res.status(400).json({
+            erro:true,
+            mensagem: `Erro: Produto não cadastrado...${err}`
+        })
+    })
+});
+
 app.listen(process.env.PORT,() => {
     console.log(`Servico iniciado na porta ${process.env.PORT} http://localhost:${process.env.PORT}`);
 });
-
-// app.listen(6333);
