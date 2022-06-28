@@ -114,8 +114,51 @@ app.delete("/categories/:id",async (req, res)=>{
     });
 });
 
-
 // app.listen(6333);
+
+// --------------------------------------------------------------------------------------------------- //
+
+app.get("/products", async (req, res) => {
+    await Products.findAll({
+        attributes: ['id','name', 'description'],
+        order:[['id','ASC']]
+    })
+    .then( (products) => {
+        return res.json({
+            erro:false,
+            products
+        });
+    }).catch( (err) => {
+        return res.status(400).json({
+            erro: true,
+            mensagem: `Erro: ${err} ou Nehum Produto encontrado!!!`
+        });
+    });
+});
+
+app.get('/products/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        // await User.findAll({ where: { id: id }})
+        const products = await Products.findByPk(id);
+        if(!products) {
+            return res.status(400).json({
+                erro: true,
+                mensagem: "Erro Nehum Produto encontrado!"
+            })
+        }
+        res.status(200).json({
+            erro: false,
+            products
+        })
+    }catch (err){
+        res.status(400).json({
+            erro: true,
+            mensagem: `Erro: ${err}`
+        })
+    }
+});
+
 app.post("/products", async (req, res) => {
     // const{ name, email, gender, password } = req.body;
     var dados = req.body;
@@ -135,6 +178,39 @@ app.post("/products", async (req, res) => {
             mensagem: `Erro: Produto não cadastrado...${err}`
         })
     })
+});
+
+app.put("/products",async (req, res) => {
+    const{ id} = req.body;
+
+    await Products.update(req.body,{ where: { id}})
+    .then(()=>{
+        return res.json({
+            erro:false,
+            mensagem: "Produto alterado com sucesso"
+        })
+    }).catch((err) => {
+        return res.status(400).json({
+            erro:true,
+            mensagem: `Erro: Produto não alterado ...${err}`
+        })
+    })
+});
+
+app.delete("/products/:id",async (req, res)=>{
+    const {id} = req.params;
+    await Products.destroy({where: { id }})
+    .then(()=>{
+        return res.json({
+            erro:false,
+            mensagem: "Produto apagado com sucesso"
+        });
+    }).catch(() => {
+        return res.status(400).json({
+            erro:true,
+            mensagem: `Erro: ${err} Produto não apagado...`
+        });
+    });
 });
 
 app.listen(process.env.PORT,() => {
